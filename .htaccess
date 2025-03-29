@@ -1,0 +1,23 @@
+RewriteEngine On
+
+# Redirect contact to contact.php
+RewriteRule ^Login$ index.php [L]
+RewriteRule ^Signup$ signup.php [L]
+
+
+# Remove "index.php" from URLs
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+
+# Custom 404 error page
+ErrorDocument 404 /404.php
+
+# Deny access to .htaccess itself
+<Files ".htaccess">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Prevent directory listing
+Options -Indexes
