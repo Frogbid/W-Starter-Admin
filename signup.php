@@ -1,4 +1,10 @@
 <?php
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\PHPMailer;
+
+require 'PHPMailer/src/Exception.php';
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
 require_once('config/dbConfig.php');
 $db_handle = new DBController();
 date_default_timezone_set("Asia/Dhaka");
@@ -16,7 +22,54 @@ if(isset($_POST['signup'])){
         if($check_email == 0){
             $sign_up = $db_handle->insertQuery("INSERT INTO `login`(`name`, `email`, `password`, `status`, `inserted_at`) VALUES ('$name','$email_address','$hashedPassword','0','$inserted_at')");
             if($sign_up){
-                $result = 1;
+                $fetch_id = $db_handle->runQuery("select id from login order by id desc limit 1");
+                $id = $fetch_id[0]['id'];
+                $subject = "Please verify your email to continue using your account.";
+                $messege = "<html>
+<body style='background-color: #eee; font-size: 16px;'>
+<div style='max-width: 600px; min-width: 200px; background-color: #ffffff; padding: 20px; margin: auto;'>
+
+    <p style='text-align: center;color:#29a9e1;font-weight:bold'>Thank you for registering your account.</p>
+
+    <p style='color:black;text-align: center'>
+        Please visit <a href='https://frogbid.com/Verify?id=$id'><strong>this link</strong></a> to verify your email.
+    </p>
+</div>
+
+</body>
+</html>";
+
+                $sender_name = "FrogBID Digital & Technologies";
+
+
+                $sender_email = "contact@frogbid.com";
+                $username = "contact@frogbid.com";
+                $password = "I1d:j31m4)4";
+
+                $receiver_email = $email_address;
+
+
+
+                $mail = new PHPMailer(true);
+                $mail->isSMTP();
+                $mail->Host = "mail.frogbid.com";
+                $mail->SMTPAuth = true;
+                $mail->SMTPSecure = 'ssl';
+                $mail->Port = 465;
+                $mail->setFrom($sender_email, $sender_name);
+                $mail->Username = $username;
+                $mail->Password = $password;
+
+                $mail->CharSet = 'UTF-8';
+
+                $mail->Subject = $subject;
+                $mail->msgHTML($messege);
+                $mail->addAddress($receiver_email);
+                if ($mail->send()) {
+                    $result = 1;
+                    exit;
+                }
+
             }
         } else {
             $result = 2;
@@ -61,7 +114,7 @@ if(isset($_POST['signup'])){
         <!-- BEGIN register-content -->
         <div class="register-content">
             <form action="#" method="post">
-                <h1 class="text-center">Sign Up <?php echo $result;?></h1>
+                <h1 class="text-center">Sign Up</h1>
                 <p class="text-body text-opacity-50 text-center mb-4">One Admin ID is all you need to access all the Admin services.</p>
                 <?php if ($result == 1) {
                     ?>

@@ -1,3 +1,25 @@
+<?php
+session_start();
+require_once('config/dbConfig.php');
+$db_handle = new DBController();
+$result = 0;
+if(isset($_POST['login'])){
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+    $fetch_email = $db_handle->runQuery("SELECT * FROM login WHERE email='$email'");
+    $hashed_password = $fetch_email[0]['password'];
+
+    if(password_verify($password, $hashed_password)){
+        $_SESSION['admin'] = $fetch_email[0]['id'];
+        $_SESSION['status'] = 'success';
+        echo "<script>window.location.href='Dashboard';</script>";
+    } else {
+        $result = 1;
+    }
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -35,6 +57,13 @@
                 <div class="text-body text-opacity-50 text-center mb-5">
                     For your protection, please verify your identity.
                 </div>
+                <?php if($result == 1) {
+                    ?>
+                    <div class="alert alert-danger mt-3 mb-3">
+                        <strong>Sorry!</strong> Email or password do not match! Try again.
+                    </div>
+                    <?php
+                }?>
                 <div class="mb-4">
                     <label class="form-label">Email Address</label>
                     <input type="text" class="form-control form-control-lg fs-14px" value="" placeholder="username@address.com" name="email"/>
@@ -46,7 +75,7 @@
                     </div>
                     <input type="password" class="form-control form-control-lg fs-14px" value="" placeholder="Enter your password" name="password"/>
                 </div>
-                <button type="submit" class="btn btn-theme btn-lg d-block w-100 mb-3">SIGN IN</button>
+                <button type="submit" name="login" class="btn btn-theme btn-lg d-block w-100 mb-3">SIGN IN</button>
                 <div class="text-center text-body text-opacity-50">
                     Don't have an account yet? <a href="Signup">Sign up</a>.
                 </div>
