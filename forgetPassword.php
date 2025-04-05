@@ -3,18 +3,61 @@ session_start();
 require_once('config/dbConfig.php');
 $db_handle = new DBController();
 $result = 0;
-if(isset($_POST['login'])){
+if(isset($_POST['forgetPassword'])){
     $email = $_POST['email'];
-    $password = $_POST['password'];
     $fetch_email = $db_handle->runQuery("SELECT * FROM login WHERE email='$email'");
-    $hashed_password = $fetch_email[0]['password'];
+    $fetch_email_no = $db_handle->numRows("SELECT * FROM login WHERE email='$email'");
+    if($fetch_email_no > 0){
+        $id = $fetch_email[0]['id'];
+        $subject = "Please visit the link and verify your password.";
+        $messege = "<html>
+<body style='background-color: #eee; font-size: 16px;'>
+<div style='max-width: 600px; min-width: 200px; background-color: #ffffff; padding: 20px; margin: auto;'>
 
-    if(password_verify($password, $hashed_password)){
-        $_SESSION['admin'] = $fetch_email[0]['id'];
-        $_SESSION['status'] = 'success';
-        echo "<script>window.location.href='Dashboard';</script>";
-    } else {
-        $result = 1;
+    <p style='text-align: center;color:#29a9e1;font-weight:bold'>Thank you for contacting us.</p>
+
+    <p style='color:black;text-align: center'>
+        Please visit <a href='https://frogbid.com/Set-Password?id=$id'><strong>this link</strong></a> to reset your password..
+    </p>
+</div>
+
+</body>
+</html>";
+
+        $sender_name = "FrogBID Digital & Technologies";
+
+
+        $sender_email = "contact@frogbid.com";
+        $username = "contact@frogbid.com";
+        $password = "I1d:j31m4)4";
+
+        $receiver_email = $email;
+
+
+
+        $mail = new PHPMailer(true);
+        $mail->isSMTP();
+        $mail->Host = "mail.frogbid.com";
+        $mail->SMTPAuth = true;
+        $mail->SMTPSecure = 'ssl';
+        $mail->Port = 465;
+        $mail->setFrom($sender_email, $sender_name);
+        $mail->Username = $username;
+        $mail->Password = $password;
+
+        $mail->CharSet = 'UTF-8';
+
+        $mail->Subject = $subject;
+        $mail->msgHTML($messege);
+        $mail->addAddress($receiver_email);
+        if ($mail->send()) {
+            $result = 1;
+            exit;
+        } else {
+            $result = 2;
+        }
+    } else{
+        $result = 3;
     }
 }
 
@@ -55,12 +98,24 @@ if(isset($_POST['login'])){
             <form action="#" method="POST">
                 <h1 class="text-center">Sign In</h1>
                 <div class="text-body text-opacity-50 text-center mb-5">
-                    For your protection, please verify your identity.
+                    Please input the registered email address
                 </div>
-                <?php if($result == 1) {
+                <?php if($result == 2) {
                     ?>
                     <div class="alert alert-danger mt-3 mb-3">
-                        <strong>Sorry!</strong> Email or password do not match! Try again.
+                        <strong>Sorry!</strong> Something went wrong! Please try again.
+                    </div>
+                    <?php
+                } if($result == 1){
+                    ?>
+                    <div class="alert alert-success mt-3 mb-3">
+                        <strong>Success!</strong> Please check your email and verify your account.
+                    </div>
+                    <?php
+                } if($result == 3) {
+                    ?>
+                    <div class="alert alert-warning mt-3 mb-3">
+                        <strong>Sorry!</strong> This email is not registered with us! Try again.
                     </div>
                     <?php
                 }?>
@@ -68,14 +123,7 @@ if(isset($_POST['login'])){
                     <label class="form-label">Email Address</label>
                     <input type="text" class="form-control form-control-lg fs-14px" value="" placeholder="username@address.com" name="email"/>
                 </div>
-                <div class="mb-4">
-                    <div class="d-flex">
-                        <label class="form-label">Password</label>
-                        <a href="Forget-Password" class="ms-auto text-body text-opacity-50">Forgot password?</a>
-                    </div>
-                    <input type="password" class="form-control form-control-lg fs-14px" value="" placeholder="Enter your password" name="password"/>
-                </div>
-                <button type="submit" name="login" class="btn btn-theme btn-lg d-block w-100 mb-3">SIGN IN</button>
+                <button type="submit" name="forgetPassword" class="btn btn-theme btn-lg d-block w-100 mb-3">Send Link</button>
                 <div class="text-center text-body text-opacity-50">
                     Don't have an account yet? <a href="Signup">Sign up</a>.
                 </div>

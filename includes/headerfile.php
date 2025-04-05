@@ -337,7 +337,7 @@
                 <a class="dropdown-item" href="calendar.html">CALENDER SETTINGS</a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="helper.html">HELP & SUPPORT</a>
-                <a class="dropdown-item" href="page_login.html">LOG OUT</a>
+                <a class="dropdown-item" href="Logout">LOG OUT</a>
             </div>
         </div>
     </div>

@@ -1,6 +1,10 @@
 <?php
 session_start();
-$_SESSION['admin'];
+if(!isset($_SESSION['admin'])){
+    echo "
+    <script>window.location.href = 'Login';</script>
+    ";
+}
 ?>
 
 <!DOCTYPE html>
